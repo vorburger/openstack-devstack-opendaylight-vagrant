@@ -31,27 +31,6 @@ Vagrant.configure(2) do |config|
   # your network.
   # config.vm.network "public_network"
 
-  # Share an additional folder to the guest VM. The first argument is
-  # the path on the host to the actual folder. The second argument is
-  # the path on the guest to mount the folder. And the optional third
-  # argument is a set of non-required options.
-  # config.vm.synced_folder "../data", "/vagrant_data"
-
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
-
   config.vm.host_name = "devstack1"
 
   config.vm.provider :libvirt do |libvirt|
@@ -63,6 +42,11 @@ Vagrant.configure(2) do |config|
 
   # UNTESTED
   # config.vm.provider :virtualbox do |vb|
+  # config.vm.provider "virtualbox" do |vb|
+  #      # Display the VirtualBox GUI when booting the machine
+  #      vb.gui = true
+  #      # Customize the amount of memory on the VM:
+  #      vb.memory = "1024"
   #      # Use VBoxManage to customize the VM. For example to change memory:
   #      vb.customize ["modifyvm", :id, "--memory", "2048"]
   #      vb.customize ["modifyvm", :id, "--cpus", "2"]
@@ -74,6 +58,15 @@ Vagrant.configure(2) do |config|
   # This requires https://github.com/dustymabe/vagrant-sshfs#install-plugin, which is a minor PITA to install
   # (https://github.com/fgrehm/vagrant-cachier is a another more complete and complex solution; this is simple enough and works for us)
   config.vm.synced_folder ".dnf-cache", "/var/cache/dnf", type: "sshfs", sshfs_opts_append: "-o nonempty"
+
+  # Make sure the default /vagrant sync doesn't copy the (big) .dnf-cache/ into the VM
+  config.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: [".git/", ".dnf-cache/" ]
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available.
