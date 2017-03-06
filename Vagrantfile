@@ -7,7 +7,10 @@ Vagrant.configure(2) do |config|
   # https://docs.vagrantup.com.
 
   # Search for boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "fedora/25-cloud-base"
+  # Stick to Fedora Cloud v24 instead of 25, because devstack branch stable/newton else fails with:
+  #    "WARNING: this script has not been tested on f25" (If you wish to run this script anyway run with FORCE=yes)
+  config.vm.box = "fedora/24-cloud-base"
+  # config.vm.box = "fedora/25-cloud-base"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -51,16 +54,32 @@ Vagrant.configure(2) do |config|
 
   config.vm.host_name = "devstack1"
 
-  config.vm.provider :libvirt do |domain|
-        domain.cpus = 2
-        domain.memory = 2048
-        # domain.graphics_type = "spice"
-        # domain.video_type = "qxl"
+  config.vm.provider :libvirt do |libvirt|
+        libvirt.cpus = 2
+        libvirt.memory = 2048
+        # libvirt.graphics_type = "spice"
+        # libvirt.video_type = "qxl"
   end
+
+  # UNTESTED
+  # config.vm.provider :virtualbox do |vb|
+  #      # Use VBoxManage to customize the VM. For example to change memory:
+  #      vb.customize ["modifyvm", :id, "--memory", "2048"]
+  #      vb.customize ["modifyvm", :id, "--cpus", "2"]
+  #      # you need this for openstack guests to talk to each other
+  #      vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
+  # end
+
+  # Cache RPM packages (helpful if frequently doing `vagrant destroy && vagrant up`)
+  # This requires https://github.com/dustymabe/vagrant-sshfs#install-plugin, which is a minor PITA to install
+  # (https://github.com/fgrehm/vagrant-cachier is a another more complete and complex solution; this is simple enough and works for us)
+  config.vm.synced_folder ".dnf-cache", "/var/cache/dnf", type: "sshfs", sshfs_opts_append: "-o nonempty"
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available.
-  config.vm.provision "shell", inline: <<-SHELL
-      sudo dnf upgrade -y
-  SHELL
+  # NB shell already 
+  config.vm.provision "shell", path: "devstack.sh"
+
+  config.ssh.forward_agent = true
+
 end
