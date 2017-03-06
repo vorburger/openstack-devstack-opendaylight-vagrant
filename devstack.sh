@@ -37,6 +37,16 @@ git clone https://git.openstack.org/openstack-dev/devstack
 cd devstack
 git checkout stable/newton
 
+# This script creates a new ~stack user
+./tools/create-stack-user.sh
+# She has her home directory in /opt/stack (not /home)
+# so we move our devstack git clone there, and fix permissions
+mv * /opt/stack/devstack/
+sudo chown -R stack:stack /opt/stack/devstack/
+sudo su - stack
+cd devstack
+
+cp samples/local.conf local.conf
 # TODO later after basic devstack works..
 # cp /vagrant/local.conf local.conf
 #   TODO set HOST_IP to the IP of your VM
@@ -44,5 +54,5 @@ git checkout stable/newton
 
 ./stack.sh
 
-# git clone https://github.com/shague/odl_tools.git
+# cd .. ; git clone https://github.com/shague/odl_tools.git
 
