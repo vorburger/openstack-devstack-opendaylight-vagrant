@@ -35,7 +35,11 @@ cp samples/local.conf local.conf
 
 # This script creates a new ~stack user
 ./tools/create-stack-user.sh
-mkdir /opt/stack/logs/
+
+# Huh? Sometimes it seems to use /opt/logs/stack and sometimes /opt/stack/logs/ ?!
+mkdir -p /opt/logs/stack
+chmod 777 /opt/logs/stack
+mkdir -p /opt/stack/logs/
 chmod 777 /opt/stack/logs/
 
 # New user has home directory in /opt/stack (not /home), which script created
@@ -44,13 +48,10 @@ mkdir /opt/stack/devstack/
 mv {.[!.],}* /opt/stack/devstack/
 cd ..
 rmdir devstack
-sudo chown -R stack:stack /opt/stack/devstack/
 
-# TODO later after basic devstack works..
-# cp /vagrant/local.conf local.conf
-#   TODO set HOST_IP to the IP of your VM
-#   TODO set ODL_MGR_IP to the IP of where ODL will be running
+cp /vagrant/local.conf /opt/stack/devstack/local.conf
 
 # Now run stack.sh, but as our new user (~stack), not as the currently running ~root
+sudo chown -R stack:stack /opt/stack/devstack/
 sudo su - stack -c 'cd ~stack/devstack && ./stack.sh'
 

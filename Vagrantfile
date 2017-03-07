@@ -24,18 +24,18 @@ Vagrant.configure(2) do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.33.10"
+  config.vm.network "private_network", ip: "192.168.150.10"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
   # your network.
   # config.vm.network "public_network"
 
-  config.vm.host_name = "devstack1"
+  config.vm.host_name = "control"
 
   config.vm.provider :libvirt do |libvirt|
         libvirt.cpus = 2
-        libvirt.memory = 2048
+        libvirt.memory = 4096
         # libvirt.graphics_type = "spice"
         # libvirt.video_type = "qxl"
   end
