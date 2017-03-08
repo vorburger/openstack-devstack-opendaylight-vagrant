@@ -40,24 +40,50 @@ and that should finish, after quite a while, with a `DevStack Component Timing` 
 The OpenStack /dashboard UI (Horizon) is now available on http://192.168.150.10/dashboard/ (unless de-activated by commenting `enable_service horizon` in local.conf, to save memory); login as admin/admin.
 
 
+local.conf changes
+------------------
+
+To tweak the OpenStack configuration, login to the VM, and in local.conf change the `RECLONE` from `True` to `False` (and `OFFLINE` from `False` to `True`, *unless* you're e.g. enabling a new service):
+
+    vagrant ssh
+    sudo su - stack
+    cd /opt/stack/devstack
+
+    nano local.conf
+    ./unstack.sh
+    ./stack.sh
+
+
+Restart
+-------
+
+If your VM dies (or you have to `vagrant halt` it for some reason), then you have to restart OS procs by doing `./stack.sh` again, as above.  Make sure you have `RECLONE=False` and `OFFLINE=True`.  It's slow! :-(
+
+You'll want to use `vagrant suspend` and `vagrant resume` to save time re-stacking.
+
+_TODO Figure out how to get "vagrant snapshot" working with KVM using https://github.com/miurahr/vagrant-kvm-snapshot, or switch to using VirtualBox instead of KVM?_
+
+
+
+Usage
+-----
+
+    vagrant ssh
+    sudo su - stack
+    cd /opt/stack/devstack
+    . openrc admin admin
+
+    neutron net-create n1
+    neutron subnet-create n1 --name s1 --allocation-pool start=10.11.12.20,end=10.11.12.30 10.11.12.0/24 
+    nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm1
+
+
 Topology
 --------
 
 * 192.168.150.10 is the OpenStack devstack VM, hostname "control"
 * 192.168.150.1 is the host (your laptop / workstation), reachable from control
 
-
-local.conf changes
-------------------
-
-To tweak the OpenStack configuration, login to the VM, and in local.conf change the `RECLONE` from `True` to `False` (and `OFFLINE` from `False` to `True`, *unless* you're e.g. enabling a new service:
-
-    vagrant ssh
-    sudo su - stack
-    cd /opt/stack/devstack
-    nano local.conf
-    ./unstack.sh
-    ./stack.sh
 
 
 See also...
