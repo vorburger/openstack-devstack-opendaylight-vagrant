@@ -76,6 +76,10 @@ Usage
     neutron net-create n1
     neutron subnet-create n1 --name s1 --allocation-pool start=10.11.12.20,end=10.11.12.30 10.11.12.0/24 
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm1
+    sudo virsh list
+    nova get-vnc-console vm1 novnc
+
+_atkbd serio0: Use 'setkeycode 00 <keycode>' to make it known. Unknown key pressed_ is an issue with novnc that has been fixed but not in this version, so: `cd /opt/stack/noVNC; git checkout v0.6.0`.  (If it says `further output written to /dev/ttyS0` then wait for a minute or so until login prompt appears.)
 
 
 Topology
