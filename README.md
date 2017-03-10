@@ -59,7 +59,7 @@ Restart
 
 If your VM dies (or you have to `vagrant halt` it for some reason), then you have to restart OS procs by doing `./stack.sh` again, as above.  Make sure you have `RECLONE=False` and `OFFLINE=True`.  It's slow! :-(
 
-You'll want to use `vagrant suspend` and `vagrant resume` to save time re-stacking.
+You'll want to use `vagrant suspend` (NB the KVM qemu proc stays in memory!) and `vagrant resume` to save time re-stacking.
 
 _TODO Figure out how to get "vagrant snapshot" working with KVM using https://github.com/miurahr/vagrant-kvm-snapshot, or switch to using VirtualBox instead of KVM?_
 
@@ -93,7 +93,17 @@ Topology
 See also...
 -----------
 
+Background:
+
 * http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#installing-openstack-and-opendaylight-using-devstack 
+* https://docs.openstack.org/developer/devstack/networking.html
+* https://docs.openstack.org/developer/devstack/guides/devstack-with-nested-kvm.html
+
+Other similar projects:
+
+* https://github.com/openstack-dev/devstack-vagrant/
+* https://github.com/icclab/vagrant-devstack
+* https://github.com/julienvey/devstack-vagrant/
 * https://github.com/dfarrell07/ansible-opendaylight
 * https://github.com/opendaylight/integration-packaging/tree/master/docker/openstack/compute and more in opendaylight/integration-packaging
 * https://git.opendaylight.org/gerrit/#/c/43880/
