@@ -1,3 +1,6 @@
+If you like/use this project, a Star / Watch / Follow me on GitHub is appreciated.
+
+
 What?
 =====
 
@@ -10,11 +13,13 @@ of OpenDaylight.
 How?
 ----
 
-The very first time, one time install required Vagrant plugins (or comment out synced_folder type: sshfs in Vagrantfile):
+The very first time, one time install required Vagrant plugins:
 
     sudo dnf install zlib-devel libvirt-devel
     gem install nokogiri -v '1.6.8.1'
     vagrant plugin install vagrant-sshfs
+
+If you are having any trouble with this, you can alternatively also just comment out the "synced_folder type: sshfs" in the Vagrantfile.  This (vagrant-sshfs) is only used to keep a .dnf-cache/ dir outside the VM, so that frequent vagrant up & vagrant destroy are faster.  So you can forget about it (by commenting out the use of sshfs), if you don't mind waiting a moment longer for the dnf in the VM.
 
 Now get an OpenDaylight distribution on your host (not in the VM); either by DL a package, or build a local development env, for example:
 
@@ -76,6 +81,7 @@ Usage
     neutron net-create n1
     neutron subnet-create n1 --name s1 --allocation-pool start=10.11.12.20,end=10.11.12.30 10.11.12.0/24 
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm1
+    nova list
     sudo virsh list
     nova get-vnc-console vm1 novnc
 
@@ -99,11 +105,17 @@ Background:
 * https://docs.openstack.org/developer/devstack/networking.html
 * https://docs.openstack.org/developer/devstack/guides/devstack-with-nested-kvm.html
 
-Other similar projects:
+For local OpenDaylight development:
+
+* https://github.com/vorburger/opendaylight-eclipse-setup
+
+Other similar OpenStack installer kind of projects:
 
 * https://github.com/openstack-dev/devstack-vagrant/
+* https://github.com/flavio-fernandes/devstack-nodes
 * https://github.com/icclab/vagrant-devstack
 * https://github.com/julienvey/devstack-vagrant/
+* https://github.com/jhershberg/devstack-fedora-packer/blob/master/devstack-setup.sh
 * https://github.com/dfarrell07/ansible-opendaylight
 * https://github.com/opendaylight/integration-packaging/tree/master/docker/openstack/compute and more in opendaylight/integration-packaging
 * https://git.opendaylight.org/gerrit/#/c/43880/
