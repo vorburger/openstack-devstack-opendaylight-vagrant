@@ -52,9 +52,14 @@ rmdir devstack
 cp /vagrant/local.conf /opt/stack/devstack/local.conf
 
 # This prevents a problem with "tempest", see https://gist.github.com/vorburger/3d08800f68672b7b483d43aeb774055b
-pip uninstall appdirs
+# TODO How to do this "later" ?!?
+## pip uninstall -y appdirs
 
 # Now run stack.sh, but as our new user (~stack), not as the currently running ~root
 sudo chown -R stack:stack /opt/stack/devstack/
 sudo su - stack -c 'cd ~stack/devstack && ./stack.sh'
+
+# When we're done, go to offline and no reclone, for faster future ./stack.sh after VM restart
+sed -i -r -e 's/^#*\s*(OFFLINE=).*$/\1True/' local.conf
+sed -i -r -e 's/^#*\s*(RECLONE=).*$/\1False/' local.conf
 
