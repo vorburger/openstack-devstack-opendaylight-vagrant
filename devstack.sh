@@ -23,10 +23,11 @@ setenforce 0
 getenforce
 
 # Fedora Cloud does not seem to have firewalld & iptables on by default anyway
-# systemctl stop    firewalld
-# systemctl disable firewalld
 # systemctl stop    iptables.service
 # systemctl disable iptables.service
+# firewalld gets re-enabled by stack.sh anyway apparently, so it's best to have explicit ACCEPT after stack, below
+## systemctl stop    firewalld
+## systemctl disable firewalld
 
 git clone https://git.openstack.org/openstack-dev/devstack
 cd devstack
@@ -58,6 +59,9 @@ cp /vagrant/local.conf /opt/stack/devstack/local.conf
 # Now run stack.sh, but as our new user (~stack), not as the currently running ~root
 sudo chown -R stack:stack /opt/stack/devstack/
 sudo su - stack -c 'cd ~stack/devstack && ./stack.sh'
+
+# stack turns on iptables, so allow some ports (6080 = novnc)
+sudo iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 6080 -j ACCEPT
 
 # When we're done, go to offline and no reclone, for faster future ./stack.sh after VM restart
 sed -i -r -e 's/^#*\s*(OFFLINE=).*$/\1True/' local.conf
