@@ -64,6 +64,6 @@ sudo su - stack -c 'cd ~stack/devstack && ./stack.sh'
 sudo iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 6080 -j ACCEPT
 
 # When we're done, go to offline and no reclone, for faster future ./stack.sh after VM restart
-sed -i -r -e 's/^#*\s*(OFFLINE=).*$/\1True/' local.conf
-sed -i -r -e 's/^#*\s*(RECLONE=).*$/\1False/' local.conf
+sed -i -r -e 's/^#*\s*(OFFLINE=).*$/\1True/' /opt/stack/devstack/local.conf
+sed -i -r -e 's/^#*\s*(RECLONE=).*$/\1False/' /opt/stack/devstack/local.conf
 
