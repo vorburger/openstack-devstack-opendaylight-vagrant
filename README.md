@@ -87,9 +87,18 @@ Usage
     nova console-log vm1
     nova get-vnc-console vm1 novnc
 
-_atkbd serio0: Use 'setkeycode 00 <keycode>' to make it known. Unknown key pressed_ is an issue with novnc that has been fixed but not in this version, so: `cd /opt/stack/noVNC; git checkout v0.6.0; cd -`.  (If it says `further output written to /dev/ttyS0` then wait for a minute or so until login prompt appears.)
+_atkbd serio0: Use 'setkeycode 00 <keycode>' to make it known. Unknown key pressed_ is an issue with novnc that has been fixed but not in this version, so: `cd /opt/stack/noVNC; git checkout v0.6.0; cd -`.
 
-Now from the novnc console of `vm1`, make sure that you can successfully ping the IP of `vm2` (shown by `nova list`).
+If it just says `further output written to /dev/ttyS0` but then waits for a long time (minutes, not seconds) until the "login as 'cirros' user" login prompt appears, then your vm1/vm2 failed to obtain an IP from DHCP; as an `ipconfig` will prove, after you've finally been able to login when the prompt does ultimately appear.. You can try to `sudo ifdown eth0` (it will probably say `ifdown: interface eth0 not configured`) and `sudo ifup eth0`, but that will probably just "udhcp started" (`/sbin/cirros-dhcp up|down`) and try x3 to "Send discover" and then `No leave, failing` ...  see [ODL OpenStack Troubleshooting](http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#vm-dhcp-issues) re. how to debug the 10.11.12.0/24 network namespace. (... _TODO_ ...)  _Workaround: Do a complete restack when this happens (?)_;, **TODO better solution for this problem?**
+
+Now, from the novnc console of `vm1`, make sure that you can successfully ping the IP of `vm2` (shown by `nova list`).
+
+You can undo what you've done above using these commands:
+
+    nova delete vm2
+    nova delete vm1
+    neutron subnet-delete s1
+    neutron net-delete n1
 
 
 Topology
@@ -98,6 +107,21 @@ Topology
 * 192.168.150.10 is the OpenStack devstack VM, hostname "control"
 * 192.168.150.1 is the host (your laptop / workstation), reachable from control
 
+
+Troubleshoot
+------------
+
+Use `-v` for verbose output from all `nova`, `neutron` etc. commands; e.g. `neutron -v net-create n2`.  But NB that `-v` _"gives only the interaction with keystone"_, for more, see:
+
+In [devstack](https://docs.openstack.org/developer/devstack/development.html), all services run as [screen](https://www.gnu.org/software/screen/manual/screen.html#Commands), so:
+
+    vagrant ssh
+    sudo su - stack
+    screen -x stack
+
+Detach with `Ctrl-a, d`; Next/Previous screen with `Ctrl-a, n/p` (NB `*` indicating current screen) - e.g. `q-svc` is Neutron Server, where log messages from the _neutron.plugins.ml2.managers_ re. _Mechanism driver 'opendaylight'_ show any ODL related problem.
+
+Enter _scrolling (copy) mode_ with `Ctrl-a, [` - but beware, this will "lock up" (pause) processses, so you *MUST* exit scroll/copy mode by pressing `Enter` twice (or `Ctrl-a, ]`).
 
 
 See also...
