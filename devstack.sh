@@ -23,11 +23,11 @@ setenforce 0
 getenforce
 
 # Fedora Cloud does not seem to have firewalld & iptables on by default anyway
+# systemctl stop    firewalld
+# systemctl disable firewalld
+# Even if iptables gets enabled by stack.sh (but does it?), it's best to have explicit ACCEPT after stack, below, instead of stop/disable
 # systemctl stop    iptables.service
 # systemctl disable iptables.service
-# firewalld gets re-enabled by stack.sh anyway apparently, so it's best to have explicit ACCEPT after stack, below
-## systemctl stop    firewalld
-## systemctl disable firewalld
 
 git clone https://git.openstack.org/openstack-dev/devstack
 cd devstack
