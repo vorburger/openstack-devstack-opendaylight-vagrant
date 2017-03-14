@@ -85,13 +85,33 @@ Usage
     nova list
     sudo virsh list
     nova console-log vm1
+
+Use ssh, in the correct network namespace, to get into vm1 & vm2:
+
+    ip netns
+    qdhcp-79c8431e-c294-4446-b1d0-c85ac879f5f5
+    sudo ip netns exec qdhcp-79c8431e-c294-4446-b1d0-c85ac879f5f5 ssh cirros@10.11.12.28
+
+Use web-based noVNC to get into vm1 & vm2:
+
     nova get-vnc-console vm1 novnc
 
 _atkbd serio0: Use 'setkeycode 00 <keycode>' to make it known. Unknown key pressed_ is an issue with novnc that has been fixed but not in this version, so: `cd /opt/stack/noVNC; git checkout v0.6.0; cd -`.
 
 If it just says `further output written to /dev/ttyS0` but then waits for a long time (minutes, not seconds) until the "login as 'cirros' user" login prompt appears, then your vm1/vm2 failed to obtain an IP from DHCP; as an `ipconfig` will prove, after you've finally been able to login when the prompt does ultimately appear.. You can try to `sudo ifdown eth0` (it will probably say `ifdown: interface eth0 not configured`) and `sudo ifup eth0`, but that will probably just "udhcp started" (`/sbin/cirros-dhcp up|down`) and try x3 to "Send discover" and then `No leave, failing` ...  see [ODL OpenStack Troubleshooting](http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#vm-dhcp-issues) re. how to debug the 10.11.12.0/24 network namespace. (... _TODO_ ...)  _Workaround: Do a complete restack when this happens (?)_;, **TODO better solution for this problem?**
 
-Now, from the novnc console of `vm1`, make sure that you can successfully ping the IP of `vm2` (shown by `nova list`).
+If the noVNC screen is just black, then this typically 'just' means that the VM is not reachable, see Troubleshoot section below.
+
+
+**PING**
+
+Now, from the novnc console or SSH of `vm1`, make sure that you can successfully ping the IP of `vm2` (shown by `nova list`).
+
+_TODO Test and document ping-ing from inside the network namespace..._
+
+
+Undo
+----
 
 You can undo what you've done above using these commands:
 
@@ -100,12 +120,16 @@ You can undo what you've done above using these commands:
     neutron subnet-delete s1
     neutron net-delete n1
 
+_TODO test and confirm if this really works well, or document unstack os_reset.sh_
+
 
 Topology
 --------
 
 * 192.168.150.10 is the OpenStack devstack VM, hostname "control"
 * 192.168.150.1 is the host (your laptop / workstation), reachable from control
+* 192.168.121.x vagrant-libvirt default???
+* 192.168.122.1 virbr0 in BOTH control VM as well as host laptop - HUH?!
 
 
 Troubleshoot
@@ -122,6 +146,8 @@ In [devstack](https://docs.openstack.org/developer/devstack/development.html), a
 Detach with `Ctrl-a, d`; Next/Previous screen with `Ctrl-a, n/p` (NB `*` indicating current screen) - e.g. `q-svc` is Neutron Server, where log messages from the _neutron.plugins.ml2.managers_ re. _Mechanism driver 'opendaylight'_ show any ODL related problem.
 
 Enter _scrolling (copy) mode_ with `Ctrl-a, [` - but beware, this will "lock up" (pause) processses, so you *MUST* exit scroll/copy mode by pressing `Enter` twice (or `Ctrl-a, ]`).
+
+To debug the networking, compare the output of the following commands between a working and broken environment: `ip netns; sudo ip netns exec qdhcp-... route` and `sudo ovs-ofctl -OOpenFlow13 show br-int`.
 
 
 See also...
