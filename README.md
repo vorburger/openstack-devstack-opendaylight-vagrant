@@ -79,7 +79,10 @@ Usage
     . openrc admin admin
 
     neutron net-create n1
-    neutron subnet-create n1 --name s1 --allocation-pool start=10.11.12.20,end=10.11.12.30 10.11.12.0/24 
+    neutron subnet-create n1 --name s1 --allocation-pool start=10.11.12.20,end=10.11.12.30 10.11.12.0/24
+
+    nova flavor-list
+    nova flavor-create m1.nano auto 64 0 1
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm1
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm2
     nova list
