@@ -89,12 +89,6 @@ Usage
     sudo virsh list
     nova console-log vm1
 
-Use ssh, in the correct network namespace, to get into vm1 & vm2:
-
-    ip netns
-    qdhcp-79c8431e-c294-4446-b1d0-c85ac879f5f5
-    sudo ip netns exec qdhcp-79c8431e-c294-4446-b1d0-c85ac879f5f5 ssh cirros@10.11.12.28
-
 Use web-based noVNC to get into vm1 & vm2:
 
     nova get-vnc-console vm1 novnc
@@ -109,8 +103,6 @@ If the noVNC screen is just black, then this typically 'just' means that the VM 
 **PING**
 
 Now, from the novnc console or SSH of `vm1`, make sure that you can successfully ping the IP of `vm2` (shown by `nova list`).
-
-_TODO Test and document ping-ing from inside the network namespace..._
 
 
 Undo
@@ -150,7 +142,68 @@ Detach with `Ctrl-a, d`; Next/Previous screen with `Ctrl-a, n/p` (NB `*` indicat
 
 Enter _scrolling (copy) mode_ with `Ctrl-a, [` - but beware, this will "lock up" (pause) processses, so you *MUST* exit scroll/copy mode by pressing `Enter` twice (or `Ctrl-a, ]`).
 
-To debug the networking, compare the output of the following commands between a working and broken environment: `ip netns; sudo ip netns exec qdhcp-... route` and `sudo ovs-ofctl -OOpenFlow13 show br-int`.
+To debug the networking, compare the output of the following commands between a broken and a working environment, examples:
+
+    $ sudo ovs-vsctl show
+    Manager "tcp:192.168.150.1:6640"
+        is_connected: true
+    Bridge br-int
+        Controller "tcp:192.168.150.1:6653"
+            is_connected: true
+
+    $ sudo ovs-ofctl -OOpenFlow13 show br-int
+    It's OK to see DOWN here, this doesn't actually indicate a problem (TODO why?):
+      config:     PORT_DOWN
+      state:      LINK_DOWN
+
+    $ sudo ovs-ofctl -OOpenFlow13 dump-flows br-int | head
+     cookie=0x8000000, duration=100175.679s, table=0, n_packets=1351, n_bytes=130184, priority=4,in_port=1 actions=write_metadata:0x10000000000/0xffffff0000000001,goto_table:17
+     cookie=0x8000000, duration=99996.114s, table=0, n_packets=176, n_bytes=14956, priority=4,in_port=2 actions=write_metadata:0x20000000000/0xffffff0000000001,goto_table:17
+     cookie=0x8000000, duration=99679.741s, table=0, n_packets=143, n_bytes=13570, priority=4,in_port=3 actions=write_metadata:0x30000000000/0xffffff0000000001,goto_table:17
+
+Make sure there are flows for table=0, and the n_packets and n_bytes counters actually show traffic, not just 0.  It's then interesting to watch a christmas of the flow hits light up on live traffic while you e.g. ping:
+
+    watch -d "sudo ovs-ofctl -OOpenFlow13 dump-flows br-int"
+
+If there is too much happening, or to zoom in to certain flows, it helps to use `grep` e.g. like this:
+
+    watch -d "sudo ovs-ofctl -OOpenFlow13 dump-flows br-int | grep -o table=24.*"
+
+an alternative (more suitable for low traffic) is to see the exact live action happening is to use `ovs-dpctl dump-flows` instead of `ovs-ofctl dump-flows` :
+
+    while true; do echo ">>>>>"; sudo ovs-dpctl dump-flows; sleep 1; done
+
+Using `ofproto/trace` is useful, as seen [ODL OpenStack Troubleshooting](http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#vm-dhcp-issues):
+
+    sudo ovs-appctl ofproto/trace br-int ...
+
+Here's how to check things on the OpenDaylight side:
+
+    curl -u admin:admin http://localhost:8181/restconf/config/neutron:neutron/networks | python -mjson.tool
+    curl -u admin:admin http://localhost:8181/restconf/config/ietf-interfaces:interfaces | python -mjson.tool
+    curl -u admin:admin http://localhost:8181/restconf/operational/ietf-interfaces:interfaces-state | python -mjson.tool
+
+You can also attempt to launch commands inside the network namespace, but it's normal that the following does NOT WORK, the flows prevent this traffic _(TODO why?):_
+
+    ip netns
+    qdhcp-...
+    sudo ip netns exec qdhcp-... ping 10.11.12.x
+    sudo ip netns exec qdhcp-... ssh cirros@10.11.12.x
+
+but you CAN e.g. check `ifconfig`and `route` inside the network namespace, like this:
+
+    $ sudo ip netns exec qdhcp-4d732098-0f04-4a39-8249-c7b48290ed7e ifconfig
+    lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+    (...)
+    tapd1ff9e96-3a: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1450
+        inet 10.11.12.20  netmask 255.255.255.0  broadcast 10.11.12.255
+
+    $ sudo ip netns exec qdhcp-... route
+    Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+    default         gateway         0.0.0.0         UG    0      0        0 tapd1ff9e96-3a
+    10.11.12.0      0.0.0.0         255.255.255.0   U     0      0        0 tapd1ff9e96-3a
+    link-local      0.0.0.0         255.255.0.0     U     0      0        0 tapd1ff9e96-3a
 
 
 See also...

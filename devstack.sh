@@ -56,6 +56,10 @@ cp /vagrant/local.conf /opt/stack/devstack/local.conf
 # TODO How to do this "later" ?!?
 ## pip uninstall -y appdirs
 
+# Add some useful utilities
+# TODO align directory locations between this project and these scripts.. (they assume /opt/devstack while we're in /opt/stack/devstack/)
+## sudo su - stack -c 'cd ~stack; git clone https://github.com/shague/odl_tools.git'
+
 # Now run stack.sh, but as our new user (~stack), not as the currently running ~root
 sudo chown -R stack:stack /opt/stack/devstack/
 sudo su - stack -c 'cd ~stack/devstack && ./stack.sh'
