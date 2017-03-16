@@ -64,7 +64,7 @@ Restart
 
 If your VM dies (or you have to `vagrant halt` it for some reason), then you have to restart OS procs by doing `./stack.sh` again, as above.  Make sure you have `RECLONE=False` and `OFFLINE=True`.  It's slow! :-(
 
-You'll want to use `vagrant suspend` (NB the KVM qemu proc stays in memory!) and `vagrant resume` to save time re-stacking.
+_NB You may want to use `vagrant suspend` (NB the KVM qemu proc stays in memory!) and `vagrant resume` to save time re-stacking, but it seems to be broken with devstack VM (it resumes, but doesn't work... TODO Fix?!)_
 
 _TODO Figure out how to get "vagrant snapshot" working with KVM using https://github.com/miurahr/vagrant-kvm-snapshot, or switch to using VirtualBox instead of KVM?_
 
@@ -86,6 +86,7 @@ Usage
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm1
     nova boot --image cirros-0.3.4-x86_64-uec --nic net-id=$(neutron net-list | awk "/n1/ {print \$2}") --flavor m1.nano vm2
     nova list
+    nova show vm2
     sudo virsh list
     nova console-log vm1
 
@@ -125,6 +126,8 @@ Topology
 * 192.168.150.1 is the host (your laptop / workstation), reachable from control
 * 192.168.121.x vagrant-libvirt default???
 * 192.168.122.1 virbr0 in BOTH control VM as well as host laptop - HUH?!
+* 10.11.12.20 tap* in the network namespace (not on control's `ifconfig`; visible with `netns exec qdhcp-... ifconfig`)
+* 10.11.12.2x range of `subnet-create n1` (above)
 
 
 Troubleshoot
