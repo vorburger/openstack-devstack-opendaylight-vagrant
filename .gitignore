@@ -1,3 +1,4 @@
 .vagrant
 !.dnf-cache/.gitempty
 .dnf-cache/
+.project
