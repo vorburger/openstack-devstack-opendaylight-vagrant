@@ -8,10 +8,10 @@ dnf upgrade -y
 
 dnf install -y nano git qemu-kvm libvirt-client
 # Ensure that hardware accelerated nested virtualization works
-# TODO How to do this right...
-ls /dev/kvm
 cat /proc/cpuinfo | grep vmx
 /sbin/lsmod | grep kvm
+# Due to set -e above, this simple ls will fail if there is no nested virtualization:
+ls /dev/kvm
 # Fails even if it's just a WARN for "QEMU: Checking for device assignment IOMMU support" :-(
 # virt-host-validate
 

@@ -13,10 +13,25 @@ of OpenDaylight.
 How?
 ----
 
-The very first time, one time install required Vagrant plugins:
+The very first time, make sure you have Vagrant incl. KVM (_TODO or, test later, VirtualBox) installed, e.g. like this on Fedora:
 
-    sudo dnf install zlib-devel libvirt-devel
+    sudo dnf install vagrant libvirt vagrant-libvirt
+
+or like this on Ubuntu:
+
+    sudo apt-get install qemu-kvm libvirt-bin libvirt-dev
+    vagrant plugin install vagrant-libvirt
+
+The very first time, optionally one time install required Vagrant plugins, e.g. like this on Fedora:
+
+    sudo dnf install zlib-devel libvirt-devel ruby-devel
     gem install nokogiri -v '1.6.8.1'
+    vagrant plugin install vagrant-sshfs
+
+or like this on Ubuntu:
+
+    sudo dnf install zlib1g-dev libvirt-dev ruby-dev
+    sudo gem install nokogiri -v '1.6.8.1'
     vagrant plugin install vagrant-sshfs
 
 If you are having any trouble with this, you can alternatively also just comment out the "synced_folder type: sshfs" in the Vagrantfile.  This (vagrant-sshfs) is only used to keep a .dnf-cache/ dir outside the VM, so that frequent vagrant up & vagrant destroy are faster.  So you can forget about it (by commenting out the use of sshfs), if you don't mind waiting a moment longer for the dnf in the VM.
@@ -36,9 +51,9 @@ And start OpenDaylight and install the (Karaf) feature `odl-netvirt-openstack` l
 
 Test that OpenDaylight started and netvirt openstack is running e.g. with a `grep "StateManager all is ready" ../data/log/karaf.log` and no unexpected exceptions.
 
-Now to provision and start the VM with OpenStack devstack, just:
+Now to provision and start the VM with OpenStack devstack using the Vagrant libvirt provider for KVM, just:
 
-    vagrant up
+    vagrant up --provider=libvirt
 
 and that should finish, after quite a while, with a `DevStack Component Timing` message.  http://192.168.150.10/identity/ should return some JSON now.
 
@@ -208,13 +223,22 @@ but you CAN e.g. check `ifconfig`and `route` inside the network namespace, like 
     10.11.12.0      0.0.0.0         255.255.255.0   U     0      0        0 tapd1ff9e96-3a
     link-local      0.0.0.0         255.255.0.0     U     0      0        0 tapd1ff9e96-3a
 
+If you hit this, while playing around with both KVM & VirtualBox:
+
+    Error while activating network: Call to virNetworkCreate failed: internal error: Network is already in use by interface vboxnet3.
+
+then just stop VirtualBox completely and use `VBoxManage` to remove the interface created by VB on the network as Vagrant wants to create it for KVM:
+
+    /etc/init.d/virtualbox stop
+    VBoxManage hostonlyif remove vboxnet3
+
 
 See also...
 -----------
 
 Background:
 
-* http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#installing-openstack-and-opendaylight-using-devstack 
+* http://docs.opendaylight.org/en/stable-boron/submodules/netvirt/docs/openstack-guide/openstack-with-netvirt.html#installing-openstack-and-opendaylight-using-devstack
 * https://docs.openstack.org/developer/devstack/networking.html
 * https://docs.openstack.org/developer/devstack/guides/devstack-with-nested-kvm.html
 
