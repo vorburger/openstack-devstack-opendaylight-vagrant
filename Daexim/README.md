@@ -9,7 +9,7 @@ How?
 
 Unless the Daexim feature is already included in your Karaf distribution
 (and e.g. in netvirt/vpnservice/distribution/karaf/ used in ../ it's not),
-you'll need to build and install it into your local ~/.m2 Maven repository
+you'll need to build and install it into your Karaf's Maven repository
 to be able to install it into Karaf from there:
 
     git clone https://git.opendaylight.org/gerrit/p/daexim.git
@@ -21,7 +21,11 @@ Until then, you have to copy the artifacts from ~/.m2/ into $KARAF_HOME/system (
 (or use -Dmaven.repo.local=$KARAF_HOME/system; but that has other problems and re-downloads everything),
 or temporarily add a dependency to the daexim feature in the pom.xml of your karaf/ build._
 
-Then in OpenDaylight install the Daexim feature `odl-daexim-all` as usual:
+We now have to add the maven artifact of the features repository to our OpenDaylight Karaf instance:
+
+    opendaylight-user@root>repo-add mvn:org.opendaylight.daexim/daexim-features/1.0.0-SNAPSHOT/xml/features
+
+Then you can install the Daexim feature `odl-daexim-all` as usual:
 
     opendaylight-user@root>feature:install odl-daexim-all
 
