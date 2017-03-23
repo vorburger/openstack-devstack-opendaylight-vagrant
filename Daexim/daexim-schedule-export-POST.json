@@ -1,6 +1,12 @@
 {
   "input": {
-   "data-export-import:run-at": "500"
+   "data-export-import:run-at": "500",
+   "data-export-import:excluded-modules": [
+     {
+       "data-export-import:module-name": "*",
+       "data-export-import:data-store": "operational"
+     }
+   ]
   }
 }
 
