@@ -46,7 +46,5 @@ and find `odl_backup_*.json` files in the `$KARAF_HOME/daexim` directory.
 ToDo
 ----
 
-* filter export
-** only config, not operational
-** only a specific module (e.g. idmanager)
+* DEV to filter export by include instead of exclude, for list of specific modules (e.g. idmanager)
 * re-import

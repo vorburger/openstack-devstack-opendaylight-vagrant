@@ -3,8 +3,16 @@
    "data-export-import:run-at": "500",
    "data-export-import:excluded-modules": [
      {
-       "data-export-import:module-name": "*",
-       "data-export-import:data-store": "operational"
+       "data-export-import:data-store": "operational",
+       "data-export-import:module-name": "*"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "aaa-cert-mdsal"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "network-topology"
      }
    ]
   }
