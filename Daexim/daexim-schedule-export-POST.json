@@ -12,9 +12,48 @@
      },
      {
        "data-export-import:data-store": "config",
+       "data-export-import:module-name": "elan"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "ietf-access-control-list"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "ietf-interfaces"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "interface-service-bindings"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "itm"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "itm-state"
+     },
+     {
+       "data-export-import:data-store": "config",
        "data-export-import:module-name": "network-topology"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "neutron"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "neutronvpn"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "opendaylight-inventory"
+     },
+     {
+       "data-export-import:data-store": "config",
+       "data-export-import:module-name": "odl-interface-meta"
      }
    ]
   }
 }
-
