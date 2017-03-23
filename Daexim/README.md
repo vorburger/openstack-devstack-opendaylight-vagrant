@@ -14,12 +14,19 @@ to be able to install it into Karaf from there:
 
     git clone https://git.opendaylight.org/gerrit/p/daexim.git
     cd daexim
-    mvn [-Pq] -DaddInstallRepositoryPath=../../netvirt/vpnservice/distribution/karaf/target/assembly/system clean install
+    mvn [-Pq] clean install
 
-_The addInstallRepositoryPath= will only work once https://bugs.opendaylight.org/show_bug.cgi?id=8050 is fixed. 
-Until then, you have to copy the artifacts from ~/.m2/ into $KARAF_HOME/system (TODO document exact cp command), 
-(or use -Dmaven.repo.local=$KARAF_HOME/system; but that has other problems and re-downloads everything),
-or temporarily add a dependency to the daexim feature in the pom.xml of your karaf/ build._
+You can either temporarily add a dependency to the daexim feature in the pom.xml of your karaf/ build.
+
+What's often easier however is to just copy the artifacts from ~/.m2/ into $KARAF_HOME/system, like so:
+
+    mkdir -p ../netvirt/vpnservice/distribution/karaf/target/assembly/system/org/opendaylight/daexim/
+    cp -vR ~/.m2/repository/org/opendaylight/daexim/ ../netvirt/vpnservice/distribution/karaf/target/assembly/system/org/opendaylight/
+
+_Once https://bugs.opendaylight.org/show_bug.cgi?id=8050 is fixed, you'll be able to instead of above just do:
+(This is better than using -Dmaven.repo.local=$KARAF_HOME/system; as that has other problems and re-downloads everything.)_
+
+    mvn [-Pq] -DaddInstallRepositoryPath=../../netvirt/vpnservice/distribution/karaf/target/assembly/system clean install
 
 We now have to add the maven artifact of the features repository to our OpenDaylight Karaf instance:
 
