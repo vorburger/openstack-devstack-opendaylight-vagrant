@@ -248,6 +248,7 @@ For local OpenDaylight development:
 
 Other similar OpenStack installer kind of projects:
 
+* https://github.com/vpickard/ovs-lab
 * https://github.com/openstack-dev/devstack-vagrant/
 * https://github.com/flavio-fernandes/devstack-nodes
 * https://github.com/icclab/vagrant-devstack
